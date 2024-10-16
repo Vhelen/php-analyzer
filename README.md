@@ -2,7 +2,16 @@
 
 ## Whoiam
 
+I like to read lines of code and try to understand how it work and to find vulnerabilities.
+
+<img src="cover.thumb256.png" alt="cool cat" width="70"/> *It's me, trying to develop another sast tool.*
+
 ## Why am i developing another sast tool ?
+
+- **Understand how sast tools works**
+- **Get better at finding vulns in php code**
+- **Code Review Automation**
+- **Finding sinks is great, associated with sources will be better (i will try)**
 
 ## About the project
 
@@ -31,7 +40,7 @@ We need to create a list of dangerous functions in PHP, such as:
 
 ### 3. Build the Analyzer Core
 
-1. **Parse PHP Files:** Use a parser to convert PHP files into an Abstract Syntax Tree (AST).
+1. **Parse PHP Files:** We will use a parser to convert PHP files into an Abstract Syntax Tree (AST).
 2. **Analyze Function Calls:** Walk through the AST nodes to identify calls to dangerous functions.
 3. **Trace Parameter Sources:** Check where the parameters of these functions are coming from. We need to trace variables back to their origin to detect if they come from user input (`$_GET`, `$_POST`, etc.) or other tainted sources.
 
@@ -51,12 +60,12 @@ Tracing where parameters come from requires a bit more complexity:
 ### 6. Build a Report Generator
 
 Once we have a list of dangerous functions and their tainted parameters, we can generate a report:
-- **Output Format:** JSON, HTML, or plain text. JSON is often preferred for integration with other tools or further processing.
+- **Output Format:** JSON, HTML, or plain text.
 - **Details to Include:** 
-  - File name and line number
-  - Function name and parameters
-  - The source of each parameter (e.g., `$_GET['id']`)
-  - Example of payload
+  - File name and line number;
+  - Function name and parameters;
+  - The source of each parameter (e.g., `$_GET['id']`);
+  - Example of payload.
 
 ### 7. Testing and Fine-Tuning
 
@@ -68,4 +77,5 @@ Once we have a list of dangerous functions and their tainted parameters, we can 
 
 - **Sandbox:** Use sandbox to test vulnerable code**.
 - **PHP Framework:** Adapt the tool to analyse PHP framework (Laravel, Symfony) to retrieve routing and parameters.
+- **IAST:** Maybe one day.
 
