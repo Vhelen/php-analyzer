@@ -2,7 +2,7 @@
 
 ## Whoiam
 
-I like to read lines of code and try to understand how it work and to find vulnerabilities.
+I like to read lines of code and try to understand how it work to find vulnerabilities.
 
 <img src="cover.thumb256.png" alt="cool cat" width="70"/> *It's me, trying to develop another sast tool.*
 
