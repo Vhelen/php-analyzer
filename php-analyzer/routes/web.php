@@ -2,13 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\FileController;
+use App\Http\Controllers\AnalyzerController;
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-
-Route::view('/select-directory', 'select-directory');
-Route::post('/find-php-files', [FileController::class, 'findPhpFiles'])->name('find-php-files');
+Route::get('/', [AnalyzerController::class, 'index'])->name('home');
+Route::post('/analyze', [AnalyzerController::class, 'analyze'])->name('analyze');
+Route::get('/report/{id}', [AnalyzerController::class, 'showReport'])->name('report.show');
