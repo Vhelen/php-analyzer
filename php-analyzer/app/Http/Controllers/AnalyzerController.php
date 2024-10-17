@@ -44,14 +44,36 @@ class AnalyzerController extends Controller
 
         $analyzerService = new CodeAnalyzerService();
 
-        foreach ($php_files as $php_file) {
-            $report = $analyzerService->analyzePHPCode($php_file['content']);
+        $reports = [];
 
-            dd($report);
+        foreach ($php_files as $php_file) {
+            $results = $analyzerService->analyzePHPCode($php_file['content']);
+
+            $var_defs = [];
+
+            foreach($results['vulns'] as $vuln_cat => $vuln_findings){
+
+                if($vuln_findings) {
+                    foreach($vuln_findings as $vuln_finding) {    
+                        // link var used in dangerous command to where there are def
+                        foreach($vuln_finding["vars"] as $var) {
+                            
+                            if(in_array($var, $results['vars'])){
+                                $var_defs[$var] = $results['vars'][$var];
+                            } else {
+                                // var def not found
+                            }
+
+                        }
+                    }
+                }
+            }
+            
+            $reports[] = [$php_file, $results, $var_defs];
         }
 
         // Save or log report and pass it to the view
-        return view('analyzer.report', ['report' => $report]);
+        return view('analyzer.report', ['reports' => $reports]);
     }
 
     // Display a specific report (based on ID, for example)
