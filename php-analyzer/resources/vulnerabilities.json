@@ -1,0 +1,62 @@
+{
+    "RCE": {
+        "name": "Remote Code Execution",
+        "functions": {
+            "eval": "Evaluates a string as PHP code."
+        },
+        "remediation": "Ensure that inputs passed to these functions are sanitized, validated, or use secure alternatives. Avoid using these functions with user input whenever possible."
+    },
+    "SQLI": {
+        "name": "SQL Injection",
+        "functions": {
+            "mysql_query": "Executes a MySQL query using the old mysql extension.",
+            "mysqli_query": "Executes a query using the improved MySQL extension.",
+            "pg_query": "Submits a query to a PostgreSQL database.",
+            "sqlite_query": "Executes a query against a SQLite database.",
+            "oci_parse": "Prepares a statement for execution in Oracle databases.",
+            "query": "Generic method used in many ORMs (e.g., PDO, Laravel's Eloquent) to execute a database query."
+        },
+        "remediation": "Use prepared statements with parameterized queries instead of directly embedding user input into queries. Validate and sanitize all inputs before use."
+    },
+    "XSS": {
+        "name": "Cross-Site Scripting",
+        "functions": {
+            "echo": "Outputs data to the browser. User input should be sanitized before outputting.",
+            "print": "Similar to echo, outputs data to the browser.",
+            "htmlspecialchars": "While this function is used to escape HTML, incorrect use can still lead to XSS if the context isn't handled properly.",
+            "document.write": "JavaScript function to write HTML directly, can be abused if user input is not sanitized."
+        },
+        "remediation": "Always sanitize and validate user input. Use frameworks that provide built-in XSS protection, and encode output properly."
+    },
+    "CSRF": {
+        "name": "Cross-Site Request Forgery",
+        "functions": {
+            "session_start": "Initiates a session, which can be exploited if not properly protected against CSRF.",
+            "form submissions": "Forms that do not include CSRF tokens can be vulnerable."
+        },
+        "remediation": "Implement CSRF tokens in forms to ensure requests are legitimate. Use security frameworks that handle CSRF protection."
+    },
+    "DirectoryTraversal": {
+        "name": "Directory Traversal",
+        "functions": {
+            "include": "Includes a specified file. User input should never control the file path.",
+            "require": "Similar to include but produces a fatal error on failure.",
+            "file_get_contents": "Can read files based on user input, leading to traversal if not validated.",
+            "fopen": "Opens a file or URL. User input must be sanitized."
+        },
+        "remediation": "Never allow user input to dictate file paths. Use a whitelist of acceptable file paths and sanitize inputs."
+    },
+    "CommandInjection": {
+        "name": "Command Injection",
+        "functions": {
+            "exec": "Executes an external program.",
+            "shell_exec": "Executes a command via shell and returns the output as a string.",
+            "system": "Executes an external program and displays the output.",
+            "passthru": "Executes an external program and displays raw output.",
+            "popen": "Opens a pipe to a process executed by forking the command given by command.",
+            "proc_open": "Similar to popen() but provides a greater degree of control over the child process.",
+            "pcntl_exec": "Executes a program in the current process space."
+        },
+        "remediation": "Avoid passing user input directly to shell commands. Validate and sanitize inputs rigorously."
+    }
+}

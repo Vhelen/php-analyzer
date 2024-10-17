@@ -6,6 +6,8 @@ use PhpParser\Error;
 use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
 
+use Illuminate\Support\Facades\File;
+
 class CodeAnalyzerService
 {
     public function analyzePHPCode($php_code)
@@ -25,7 +27,19 @@ class CodeAnalyzerService
         $variableFinder = new VariableDefinitionFinderService();
         $traverser->addVisitor($variableFinder);
 
-        // Find some vulns 
+        // Find some vulns
+        // load json vulns
+        $vulnerabilities = File::json(resource_path('vulnerabilities.json'));
+
+        foreach($vulnerabilities as $vulnerability => $vulnerability_data){
+            $visitor = new Visitor($vulnerability_data['functions']);
+            
+            $traverser->addVisitor($visitor);
+
+            $vulnerabilities[$vulnerability]['visitor'] = $visitor;
+        }
+        die();
+
         $rce_visitor = new RemoteCodeExecutionVisitor();
         $sqli_visitor = new SQLInjectionVisitor();
         
