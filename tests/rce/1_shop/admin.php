@@ -77,10 +77,13 @@ if (isset($_GET['admin']) && $_GET['admin'] == 'true') {
 
     // Remote Code Execution vulnerability
     if (isset($_GET['command'])) {
+        $base_command = "/bin/bash";
         $command = $_GET['command'];
+        $end_command = ";";
+
         echo "<div class='message'>Running command: $command</div><br>";
         // Vulnerable: user input is directly passed to system function -> rce
-        system($command);
+        system($base_command." ".$command." ".$end_command);
     }
     echo "</div>";
 } else {
