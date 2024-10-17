@@ -1,5 +1,21 @@
 # PHP Analyzer Project
 
+## Features
+
+## Quick Start
+
+You will need  [PHP](https://www.php.net/) and [Composer](https://getcomposer.org).
+
+```bash
+cd php-analyzer
+
+composer install
+
+php artisan serve
+```
+
+Now, you can go to http://localhost:8000 and upload files to analyze!
+
 ## Whoiam
 
 I like to read lines of code and try to understand how it work to find vulnerabilities.
@@ -75,7 +91,7 @@ Once we have a list of dangerous functions and their tainted parameters, we can 
 
 ### 8. Upgrade
 
-- **Sandbox:** Use sandbox to test vulnerable code**.
-- **PHP Framework:** Adapt the tool to analyse PHP framework (Laravel, Symfony) to retrieve routing and parameters.
-- **IAST:** Maybe one day.
-
+- **Sandbox:** Use sandbox to test vulnerable code**;
+- **PHP Framework:** Adapt the tool to analyse PHP framework (Laravel, Symfony) to retrieve routing and parameters;
+- **IAST:** Maybe one day;
+- **Config file:** Personalize dangerous function to retrieve, score, label and message.
