@@ -28,24 +28,27 @@ class CodeAnalyzerService
         $traverser->addVisitor($variableFinder);
 
         // Find some vulns
+
         // load json vulns
         $vulnerabilities = File::json(resource_path('vulnerabilities.json'));
 
-        foreach($vulnerabilities as $vulnerability => $vulnerability_data){
-            $visitor = new Visitor($vulnerability_data['functions']);
-            
-            $traverser->addVisitor($visitor);
-
-            $vulnerabilities[$vulnerability]['visitor'] = $visitor;
-        }
-        die();
-
-        $rce_visitor = new RemoteCodeExecutionVisitor();
-        $sqli_visitor = new SQLInjectionVisitor();
-        
-        // Add it to visit node
+        $rce_visitor = new Visitor($vulnerabilities['RCE']['functions']);
         $traverser->addVisitor($rce_visitor);
+
+        $sqli_visitor = new Visitor($vulnerabilities['SQLI']['functions']);
         $traverser->addVisitor($sqli_visitor);
+
+        $xss_visitor = new Visitor($vulnerabilities['XSS']['functions']);
+        $traverser->addVisitor($xss_visitor);
+
+        $csrf_visitor = new Visitor($vulnerabilities['CSRF']['functions']);
+        $traverser->addVisitor($csrf_visitor);
+
+        $dir_trav_visitor = new Visitor($vulnerabilities['DirTrav']['functions']);
+        $traverser->addVisitor($dir_trav_visitor);
+
+        $cmdi_visitor = new Visitor($vulnerabilities['CMDI']['functions']);
+        $traverser->addVisitor($cmdi_visitor);
 
         // écéparti
         $traverser->traverse($ast);
@@ -54,10 +57,14 @@ class CodeAnalyzerService
         $var_findings = $variableFinder->getVariableDefinitions();
         
         // did we get some vulns ?
-        $rce_findings = $rce_visitor->getResults();
-        $sqli_findings = $sqli_visitor->getResults();
+        $vulnerabilities['RCE']['findings'] = $rce_visitor->getResults();
+        $vulnerabilities['SQLI']['findings'] = $sqli_visitor->getResults();
+        $vulnerabilities['XSS']['findings'] = $xss_visitor->getResults();
+        $vulnerabilities['CSRF']['findings'] = $csrf_visitor->getResults();
+        $vulnerabilities['DirTrav']['findings'] = $dir_trav_visitor->getResults();
+        $vulnerabilities['CMDI']['findings'] = $cmdi_visitor->getResults();
 
         // Retrieve results from the visitor
-        return ["vars" => $var_findings, "vulns" => ["rce" => $rce_findings, "sqli" => $sqli_findings]];
+        return ["vars" => $var_findings, "vulns" => $vulnerabilities];
     }
 }

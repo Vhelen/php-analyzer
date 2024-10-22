@@ -36,7 +36,7 @@
         },
         "remediation": "Implement CSRF tokens in forms to ensure requests are legitimate. Use security frameworks that handle CSRF protection."
     },
-    "DirectoryTraversal": {
+    "DirTrav": {
         "name": "Directory Traversal",
         "functions": {
             "include": "Includes a specified file. User input should never control the file path.",
@@ -46,7 +46,7 @@
         },
         "remediation": "Never allow user input to dictate file paths. Use a whitelist of acceptable file paths and sanitize inputs."
     },
-    "CommandInjection": {
+    "CMDI": {
         "name": "Command Injection",
         "functions": {
             "exec": "Executes an external program.",

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -34,9 +36,10 @@ class AnalyzerController extends Controller
 
         foreach ($files as $file) {
             if ($file->getClientOriginalExtension() === 'php') {
-                // Get the file name and its content
+                // Get the file name, path and its content
                 $php_files[] = [
                     'name' => $file->getClientOriginalName(),
+                    'path' => "", // TODO
                     'content' => file_get_contents($file->getRealPath())
                 ];
             }
@@ -47,29 +50,40 @@ class AnalyzerController extends Controller
         $reports = [];
 
         foreach ($php_files as $php_file) {
+            // Security problem -> log injection with filename -> no filter on filename upload by user
+            // TODO : patch log
+            Log::info(Str::padRight('', Str::length('|  Analyze file: '.$php_file['name'].'  |'), '-'));
+            Log::info('|  Analyze file: '.$php_file['name'].'  |');
+            Log::info(Str::padRight('', Str::length('|  Analyze file: '.$php_file['name'].'  |'), '-'));
+            
             $results = $analyzerService->analyzePHPCode($php_file['content']);
 
             $var_defs = [];
 
+            // TODO Refacto
+            // function to find where vars used in dangerous function is declared
             foreach($results['vulns'] as $vuln_cat => $vuln_findings){
-
-                if($vuln_findings) {
-                    foreach($vuln_findings as $vuln_finding) {    
+                if($vuln_findings['findings']) {
+                    foreach($vuln_findings['findings'] as $vuln_finding) {    
                         // link var used in dangerous command to where there are def
                         foreach($vuln_finding["vars"] as $var) {
-                            
                             if(in_array($var, $results['vars'])){
                                 $var_defs[$var] = $results['vars'][$var];
                             } else {
                                 // var def not found
                             }
-
                         }
                     }
                 }
             }
+            /*
+            Report Format
+
             
-            $reports[] = [$php_file, $results, $var_defs];
+            */
+            
+            // New reports
+            $reports[] = [$php_file, $results];
         }
 
         // Save or log report and pass it to the view

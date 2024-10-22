@@ -65,6 +65,7 @@
         @foreach ($reports as $report)
             @php
                 $fileInfo = $report[0];
+
                 $vars = $report[1]['vars'];
                 $vulns_cat = $report[1]['vulns'];
 
@@ -72,12 +73,14 @@
             @endphp
 
             @foreach($vulns_cat as $vuln_cat => $vulns)
-                @php $total_vulns += count($vulns); @endphp
+                @php $total_vulns += count($vulns['findings']); @endphp
             @endforeach
 
+           
             <div class="file-info">
                 <strong>File Name:</strong> {{ $fileInfo['name'] }}<br>
                 <strong>File Path:</strong> {{ $fileInfo['path'] ?? 'N/A' }}
+                
                 @if ($total_vulns > 0)
                     <br><br>
                     <strong>Total vulns:</strong> {{ $total_vulns }}
@@ -86,9 +89,9 @@
             
             @if ($total_vulns > 0)
                 @foreach($vulns_cat as $vuln_cat => $vulns)
-                    @if(count($vulns) > 0)
+                    @if(count($vulns['findings']) > 0)
                         <div class="vulns">
-                            <strong> {{ Str::upper($vuln_cat) }}:</strong> {{ count($vulns) }}
+                            <strong> {{ Str::upper($vulns['name']) }}:</strong> {{ count($vulns['findings']) }}
                         </div>
                         <table>
                             <thead>
@@ -102,15 +105,19 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($vulns as $vuln)
+                                @foreach ($vulns['findings'] as $vuln)
                                     <tr>
                                         <td>{{ $vuln['function'] }}</td>
                                         <td>{{ $vuln['line'] }}</td>
                                         <td>
-                                            @if (isset($vuln['args']) && is_array($vuln['args']))
-                                                @foreach ($vuln['args'] as $arg)
-                                                    <code>{{ $arg }}</code><br>
-                                                @endforeach
+                                            @if (isset($vuln['args']))
+                                                @if(is_array($vuln['args']))
+                                                    @foreach ($vuln['args'] as $arg)
+                                                        <code>{{ $arg }}</code><br>
+                                                    @endforeach
+                                                @else
+                                                    <code>{{ $vuln['args'] }}
+                                                @endif
                                             @else
                                                 <em>No arguments</em>
                                             @endif
@@ -119,7 +126,7 @@
                                             @if (isset($vuln['vars']) && is_array($vuln['vars']))
                                                 @foreach ($vuln['vars'] as $var)
 
-                                                    @if(in_array($var, $vars))
+                                                    @if(array_key_exists($var, $vars))
                                                         @foreach($vars[$var] as $def)
                                                             <code>Line {{ $def['line'] }}: {{ $def['code'] }}</code><br>
                                                         @endforeach

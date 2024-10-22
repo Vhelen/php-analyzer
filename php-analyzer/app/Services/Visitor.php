@@ -6,6 +6,8 @@ use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\PrettyPrinter\Standard;
 
+use Illuminate\Support\Facades\Log;
+
 class Visitor extends NodeVisitorAbstract
 {
     private $results = [];
@@ -16,24 +18,30 @@ class Visitor extends NodeVisitorAbstract
         // Initialize the pretty printer
         $this->prettyPrinter = new Standard();
         $this->functions = $functions;
+
+        Log::info('[+] New Visitor: '.implode(", ", array_keys($this->functions)));
     }
 
     public function enterNode(Node $node)
     {
         // Check for function calls or method calls
-        if ($node instanceof Node\Expr\FuncCall || $node instanceof Node\Expr\MethodCall) {
-            
-            $function_name = $node instanceof Node\Expr\FuncCall 
+        if ($node instanceof Node\Expr\FuncCall || $node instanceof Node\Expr\MethodCall || $node instanceof Node\Expr\Eval_) {
+
+            $function_name = $node instanceof Node\Expr\Eval_ 
+                ? "eval" 
+                : ($node instanceof Node\Expr\FuncCall 
                 ? $node->name->toString() 
-                : $node->name;
+                : $node->name);
+            
+            Log::info('[*] Function found: '.$function_name);
 
             // Check if the function/method is in the list of dangerous functions
-            if (in_array($function_name, $this->functions)) {
-                
-                
+            if ($function_name instanceof String && array_key_exists($function_name, $this->functions)) {
 
-                foreach ($node->args as $arg) {
-                    if ($this->isUserInput($arg->value)) {
+                $ast_service = new ASTService();
+
+                if ($node instanceof Node\Expr\Eval_) {
+                    if ($this->isUserInput($node->expr)) {
                         // Check if arg come from user input ($_GET, $_POST, etc.)
                         // todo
                         // need to check were var is def to see if user input also here
@@ -41,16 +49,42 @@ class Visitor extends NodeVisitorAbstract
 
                     $code = $this->prettyPrinter->prettyPrint([$node]);
 
-                    $variables = $this->extractVariables($arg->value);
+                    $variables = $this->extractVariables($node->expr);
 
                     $this->results[] = [
                         'function' => $function_name,
                         'line' => $node->getLine(),
-                        'args' => $this->getArgumentValues($node->args),
+                        'args' => $ast_service->reconstructPHPCode($node->expr),
                         'vars' => $variables,
-                        'message' => "Potential SQL Injection vulnerability detected: $function_name",
+                        'message' => "Potential vulnerability detected: $function_name",
                         'code' => $code
                     ];
+
+                    dd($results);
+                }
+                else {
+                    foreach ($node->args as $arg) {
+                        if ($this->isUserInput($arg->value)) {
+                            // Check if arg come from user input ($_GET, $_POST, etc.)
+                            // todo
+                            // need to check were var is def to see if user input also here
+                        }
+    
+                        $code = $this->prettyPrinter->prettyPrint([$node]);
+    
+                        $variables = $this->extractVariables($arg->value);
+    
+                        $this->results[] = [
+                            'function' => $function_name,
+                            'line' => $node->getLine(),
+                            'args' => $this->getArgumentValues($node->args),
+                            'vars' => $variables,
+                            'message' => "Potential vulnerability detected: $function_name",
+                            'code' => $code
+                        ];
+
+                        dd($results);
+                    }
                 }
             }
         }
