@@ -30,13 +30,20 @@ class Visitor extends NodeVisitorAbstract
     public function enterNode(Node $node)
     {
         // Check for function calls or method calls
-        if ($node instanceof Node\Expr\FuncCall || $node instanceof Node\Expr\MethodCall || $node instanceof Node\Expr\Eval_) {
+        if ($node instanceof Node\Expr\FuncCall || $node instanceof Node\Expr\MethodCall || $node instanceof Node\Expr\Eval_ || $node->getType() === 'Stmt_Echo') {
 
-            $function_name = $node instanceof Node\Expr\Eval_ 
-                ? "eval" 
-                : ($node instanceof Node\Expr\FuncCall 
-                ? $node->name->toString() 
-                : $node->name->name);
+            if ($node->getType() === "Expr_Eval") {
+                $function_name = 'eval';
+            }
+            elseif ($node->getType() === "Expr_MethodCall" || $node->getType() === "Expr_FuncCall") {
+                $function_name = $node->name->name;
+            }
+            elseif ($node->getType() === "Stmt_Echo") {
+                $function_name = "echo";
+            }
+            else {
+                $function_name = "dunno";
+            }
             
             Log::info('[*] Function found: '.$function_name);
 
@@ -53,7 +60,10 @@ class Visitor extends NodeVisitorAbstract
                 if ($node instanceof Node\Expr\Eval_) {
                     // TODO
                 }
-                else{
+                elseif ($node->getType() === "Stmt_Echo") {
+                    // TODO
+                }
+                else {
                     $args = $this->getArgumentValues($node->args);
                     foreach ($node->args as $arg) {
                         $variables = $this->extractVariables($arg->value);

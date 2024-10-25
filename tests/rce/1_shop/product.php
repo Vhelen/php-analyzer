@@ -67,7 +67,7 @@ echo "<header><h1>RCE Shop - Product</h1></header>";
 
 $productId = $_GET['id'] ?? 1; // Assume default product ID if none is provided
 echo "<div class='container'>";
-// Vulnerable: user input is directly passed to front -> xss
+// Not Vulnerable: user input is passed to front with htmlspecialchars
 echo "<h1>Product Details for Product #".htmlspecialchars($productId)."</h1>"; 
 echo "<p>Product description goes here.</p>";
 echo "</div>";
