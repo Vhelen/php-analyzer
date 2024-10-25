@@ -1,3 +1,43 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.file-info {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.no-vulns {
+  margin-top: 20px;
+  background-color: #d4edda;
+  padding: 10px;
+  border-radius: 5px;
+  color: #155724;
+}
+.vulns {
+  margin-top: 20px;
+  background-color: #f8d7da;
+  padding: 10px;
+  border-radius: 5px;
+  color: #721c24;
+}
+
 .file-drop-area {
   position: relative;
   display: flex;
@@ -8,5 +48,4 @@
   border: 1px dashed rgba(255, 255, 255, 0.4);
   border-radius: 3px;
   transition: 0.2s;
-  
 }
