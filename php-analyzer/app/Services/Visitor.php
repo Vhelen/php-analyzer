@@ -36,7 +36,7 @@ class Visitor extends NodeVisitorAbstract
                 ? "eval" 
                 : ($node instanceof Node\Expr\FuncCall 
                 ? $node->name->toString() 
-                : $node->name);
+                : $node->name->name);
             
             Log::info('[*] Function found: '.$function_name);
 
