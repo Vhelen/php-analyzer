@@ -76,6 +76,8 @@
                                                     @foreach($vars[$var] as $def)
                                                         <code>Line {{ $def['line'] }}: {{ $def['code'] }}</code><br>
                                                     @endforeach
+                                                @elseif(in_array($var, ['_GET', '_POST', '_REQUEST', '_COOKIE']))
+                                                    <code>user input -> ${{ $var }}</code>
                                                 @else
                                                     Var <code>${{ $var }}</code> not found.<br>
                                                 @endif
