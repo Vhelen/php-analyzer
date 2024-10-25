@@ -50,11 +50,17 @@ class CodeAnalyzerService
         $cmdi_visitor = new Visitor($vulnerabilities['CMDI']['functions']);
         $traverser->addVisitor($cmdi_visitor);
 
+        $rce_2_visitor = new RemoteCodeExecutionVisitor();
+        $traverser->addVisitor($rce_2_visitor);
+
         // écéparti
         $traverser->traverse($ast);
 
         // Get results
         $var_findings = $variableFinder->getVariableDefinitions();
+
+        $test = $rce_2_visitor->getResults();
+        // if($test) dd($test);
         
         // did we get some vulns ?
         $vulnerabilities['RCE']['findings'] = $rce_visitor->getResults();

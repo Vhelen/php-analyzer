@@ -22,6 +22,11 @@ class Visitor extends NodeVisitorAbstract
         Log::info('[+] New Visitor: '.implode(", ", array_keys($this->functions)));
     }
 
+    public function getResults()
+    {
+        return $this->results;
+    }
+
     public function enterNode(Node $node)
     {
         // Check for function calls or method calls
@@ -36,56 +41,33 @@ class Visitor extends NodeVisitorAbstract
             Log::info('[*] Function found: '.$function_name);
 
             // Check if the function/method is in the list of dangerous functions
-            if ($function_name instanceof String && array_key_exists($function_name, $this->functions)) {
+            if (array_key_exists($function_name, $this->functions)) {
 
-                $ast_service = new ASTService();
+                $code = $this->prettyPrinter->prettyPrint([$node]);
+                
 
+                // Variables + Arguments
+                $variables = [];
+                $args = [];
+                
                 if ($node instanceof Node\Expr\Eval_) {
-                    if ($this->isUserInput($node->expr)) {
-                        // Check if arg come from user input ($_GET, $_POST, etc.)
-                        // todo
-                        // need to check were var is def to see if user input also here
-                    }
-
-                    $code = $this->prettyPrinter->prettyPrint([$node]);
-
-                    $variables = $this->extractVariables($node->expr);
-
-                    $this->results[] = [
-                        'function' => $function_name,
-                        'line' => $node->getLine(),
-                        'args' => $ast_service->reconstructPHPCode($node->expr),
-                        'vars' => $variables,
-                        'message' => "Potential vulnerability detected: $function_name",
-                        'code' => $code
-                    ];
-
-                    dd($results);
+                    // TODO
                 }
-                else {
+                else{
+                    $args = $this->getArgumentValues($node->args);
                     foreach ($node->args as $arg) {
-                        if ($this->isUserInput($arg->value)) {
-                            // Check if arg come from user input ($_GET, $_POST, etc.)
-                            // todo
-                            // need to check were var is def to see if user input also here
-                        }
-    
-                        $code = $this->prettyPrinter->prettyPrint([$node]);
-    
                         $variables = $this->extractVariables($arg->value);
-    
-                        $this->results[] = [
-                            'function' => $function_name,
-                            'line' => $node->getLine(),
-                            'args' => $this->getArgumentValues($node->args),
-                            'vars' => $variables,
-                            'message' => "Potential vulnerability detected: $function_name",
-                            'code' => $code
-                        ];
-
-                        dd($results);
                     }
                 }
+
+                $this->results[] = [
+                    'function' => $function_name,
+                    'line' => $node->getLine(),
+                    'args' => $args,
+                    'vars' => $variables,
+                    'message' => "Potential vulnerability detected: $function_name",
+                    'code' => $code
+                ];
             }
         }
     }
@@ -116,11 +98,6 @@ class Visitor extends NodeVisitorAbstract
             }
         }
         return $values;
-    }
-
-    public function getResults()
-    {
-        return $this->results;
     }
 
     private function extractVariables($node)
