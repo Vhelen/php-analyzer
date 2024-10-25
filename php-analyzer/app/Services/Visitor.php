@@ -58,10 +58,10 @@ class Visitor extends NodeVisitorAbstract
                 $args = [];
                 
                 if ($node instanceof Node\Expr\Eval_) {
-                    // TODO
+                    $variables = $this->extractVariables($node->expr);
                 }
                 elseif ($node->getType() === "Stmt_Echo") {
-                    // TODO
+                    $variables = $this->extractVariables($node->exprs[0]);
                 }
                 else {
                     $args = $this->getArgumentValues($node->args);
@@ -70,14 +70,17 @@ class Visitor extends NodeVisitorAbstract
                     }
                 }
 
-                $this->results[] = [
-                    'function' => $function_name,
-                    'line' => $node->getLine(),
-                    'args' => $args,
-                    'vars' => $variables,
-                    'message' => "Potential vulnerability detected: $function_name",
-                    'code' => $code
-                ];
+                // No param in dangerous function -> cant reach with user input -> no exploit :(
+                if(count($variables) !== 0){
+                    $this->results[] = [
+                        'function' => $function_name,
+                        'line' => $node->getLine(),
+                        'args' => $args,
+                        'vars' => $variables,
+                        'message' => "Potential vulnerability detected: $function_name",
+                        'code' => $code
+                    ];
+                }
             }
         }
     }
